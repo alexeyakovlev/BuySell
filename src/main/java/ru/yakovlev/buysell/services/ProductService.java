@@ -1,38 +1,36 @@
 package ru.yakovlev.buysell.services;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yakovlev.buysell.models.Product;
+import ru.yakovlev.buysell.repositories.ProductRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ProductService {
-    private List<Product> products = new ArrayList<>();
-    private long ID = 0;
+@Slf4j
+@RequiredArgsConstructor
 
-    {
-        products.add(new Product(++ID, "playstation5", "simple description", 15000, "yaroslavl", "tomas"));
-        products.add(new Product(++ID, "iphone8", "simple description", 10000, "moscow", "alex"));
+public class ProductService {
+    private final ProductRepository productRepository;
+
+    public List<Product> listProducts(String title) {
+        if (title != null) return productRepository.findByTitle(title);
+        return productRepository.findAll();
     }
 
-    public List<Product> listProducts() {return products;}
-
     public void saveProduct(Product product) {
-        product.setId(++ID);
-        products.add(product);
+        log.info("Saving new {}", product);
+        productRepository.save(product);
     }
 
     public void deleteProduct(Long id) {
-        products.removeIf(product -> product.getId().equals(id));
+        productRepository.deleteById(id);
     }
 
     public Product getProductById(Long id) {
-        for (Product product : products) {
-            if (product.getId().equals(id)) {
-                return product;
-            }
-        }
-        return null;
+        return productRepository.findById(id).orElse(null);
     }
 }
+
